@@ -41,16 +41,25 @@ class apiStack(Stack):
         # acm_certificate_for_example_com: AWS Certificate Manager.Certificate
         api = apigw.LambdaRestApi(
             self, 'api',
+            handler=signup_handler # singup as placeholder, cant leave this blank
+            
+            # acm_certificate_for_example_com: AWS Certificate Manager.Certificate
             
             #domain_name=apigateway.DomainNameOptions(
             #    domain_name="example.com",
             #    certificate=acm_certificate_for_example_com
             #)
         )
-        
+        authorizer = apigw.CognitoUserPoolsAuthorizer(self, "Authorizer",
+            cognito_user_pools=[cognitoStack.pool],
+            identity_source='method.request.header.Auth'
+        )
         
         gpt_endpoint = api.root.add_resource('gpt')
-        gpt_endpoint.add_method('POST', apigw.LambdaIntegration(gpt_handler))
+        gpt_endpoint.add_method('POST', apigw.LambdaIntegration(gpt_handler),
+            authorization_type=apigw.AuthorizationType.COGNITO,
+            authorizer=authorizer
+        )
         
         signup_endpoint = api.root.add_resource('signup')
         signup_endpoint.add_method('POST', apigw.LambdaIntegration(signup_handler))
