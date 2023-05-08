@@ -48,13 +48,21 @@ res = requests.post("awesome-domain.com/login", params=payload, headers=headers)
 
 ### GPT
 
-Please note that the final method included is a remnant from a previous project that involved ChatGPT. It may not be directly relevant to the current implementation and can be safely removed or disregarded
+This method showcases how to secure an endpoint using JWT cookies provided by cognito in conjunction with authorizers.
+First obtain a JWT token 
 
+Example Usage:
 ```
+res = requests.post("awesome-domain.com/login", params=payload, headers=headers)
+
+token = res['token_id']
 key = '<API KEY'
 m = '<GPT PROMPT>' #E.g 'write a five line poem'
 
-headers = {'Content-Type': 'application/json'}
+headers = {
+    'Auth': token
+    'Content-Type': 'application/json'
+}
 
 payload = {
     'key': key,
