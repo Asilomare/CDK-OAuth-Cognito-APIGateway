@@ -14,16 +14,23 @@ The Cognito stack contains commented-out custom configurations of password requi
 Example Usage
 ```
 import requests
+import json
 
-headers = {'Content-Type': 'application/json'}
+link = 'https://.example.com/{}' # or 'https://vl01lja6v5.execute-api.us-east-1.amazonaws.com/prod/{}'
 
-payload = {
-    'username': 'awesome-user',
-    'email': 'test@test.test',
-    'temporary_password': 'Password123!@#'
-}
-
-res = requests.post("awesome-domain.com/auth", params=payload, headers=headers)
+def signup(username, temporary_password, email):
+   
+    headers = {'Content-Type': 'application/json'}
+    
+    payload = {
+        'username': username,
+        'email': email,
+        'temporary_password': temporary_password
+    }
+    
+    res = requests.post(link.format('signup'), params=payload, headers=headers)
+    
+    return json.loads(res.text)
 ```
 
 ### Auth
@@ -35,15 +42,58 @@ AWS Cognito follows a secure and flexible authentication flow, allowing develope
 Example Usage:
 ```
 import requests
+import json
 
-headers = {'Content-Type': 'application/json'}
+link = 'https://.example.com/{}' # or 'https://vl01lja6v5.execute-api.us-east-1.amazonaws.com/prod/{}'
 
-payload = {
-    'username': 'awesome-user',
-    'password': 'Password123!@#'
-}
+def auth(username, password):
+    
+    headers = {'Content-Type': 'application/json'}
+    
+    payload = {
+        'username': username,
+        'password': password
+    }
+    
+    res = requests.post(link.format('login'), params=payload, headers=headers)
+    
+    return json.loads(res.text)
+```
 
-res = requests.post("awesome-domain.com/login", params=payload, headers=headers)
+### Challenge
+
+This endpoint is meant to handle challenges returned by the auth endpoint. Reachable at '/challenge', this endpoint is used in conjunction with '/auth' endpoint.
+
+Example Usage:
+```
+import requests
+import json
+
+link = 'https://.example.com/{}' # or 'https://vl01lja6v5.execute-api.us-east-1.amazonaws.com/prod/{}'
+
+def challenge(username, temporary_password, new_password):
+    
+    auth_data = auth(username, temporary_password)
+    
+    if 'error' in auth_data: return auth_data
+    
+    challenge_name = auth_data['ChallengeName']
+    session = auth_data['Session']
+    
+    headers = {'Content-Type': 'application/json'}
+    
+    payload = {
+        'challenge_name': challenge_name,
+        'session': session,
+        'challenge_responses': json.dumps({
+            'USERNAME': username,
+            'NEW_PASSWORD': new_password
+        })
+    }
+    
+    res = requests.post(link.format('challenge'), params=payload, headers=headers)
+    
+    return json.loads(res.text)
 ```
 
 ### GPT
@@ -53,23 +103,32 @@ First obtain a JWT token
 
 Example Usage:
 ```
-res = requests.post("awesome-domain.com/login", params=payload, headers=headers)
+import requests
+import json
 
-token = res['token_id']
-key = '<API KEY'
-m = '<GPT PROMPT>' #E.g 'write a five line poem'
+link = 'https://.example.com/{}' # or 'https://vl01lja6v5.execute-api.us-east-1.amazonaws.com/prod/{}'
 
-headers = {
-    'Auth': token
-    'Content-Type': 'application/json'
-}
-
-payload = {
-    'key': key,
-    "message": m
-}
-
-res = requests.get("awesome-domain.com/gpt", params=payload, headers=headers)
+def authenticated_request(username, password):
+    payload = auth(username, password)
+    
+    auth_token = payload['id_token']
+    
+    api_key = '<OPENAI-KEY>'
+    message = '<GPT PROMPT>'
+    
+    headers = {
+        'Auth': auth_token,
+        'Content-Type': 'application/json'
+    }
+    
+    payload = {
+        'key': api_key,
+        "message": message
+    }
+    
+    res = requests.post(link.format('gpt'), params=payload, headers=headers)
+    
+    return json.loads(res.text)
 ```
 
 ## Configuration

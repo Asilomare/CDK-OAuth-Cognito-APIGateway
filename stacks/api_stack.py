@@ -38,6 +38,17 @@ class apiStack(Stack):
             }
         )
         
+        challenge_handler = _lambda.DockerImageFunction(self, "challenge-handler",
+            code=_lambda.DockerImageCode.from_image_asset(
+                directory="handlers/challenge_function/"
+            ),
+            timeout=Duration.seconds(10),
+            environment={
+                'APP_CLIENT_ID': cognitoStack.client.user_pool_client_id
+            }
+        )
+        cognitoStack.pool.grant(challenge_handler, 'cognito-idp:RespondToAuthChallenge')
+        
         # acm_certificate_for_example_com: AWS Certificate Manager.Certificate
         api = apigw.LambdaRestApi(
             self, 'api',
@@ -66,3 +77,6 @@ class apiStack(Stack):
         
         auth_endpoint = api.root.add_resource('login')
         auth_endpoint.add_method('POST', apigw.LambdaIntegration(auth_handler))
+        
+        challenge_endpoint = api.root.add_resource('challenge')
+        challenge_endpoint.add_method('POST', apigw.LambdaIntegration(challenge_handler))
