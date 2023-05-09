@@ -2,6 +2,18 @@
 
 This application seamlessly integrates AWS services such as API Gateway, Cognito, Boto3, and Lambda to establish a robust and efficient API. The API facilitates seamless provisioning and interaction with a Cognito backend. By leveraging these powerful AWS services, the application ensures a scalable, secure, and high-performance solution for user authentication and management.
 
+## New User workflow
+
+**Sign Up: The user provides their username, email, and temporary password, which are sent to the /signup endpoint. A new user account is created with the provided information.
+
+**Authentication: The user authenticates themselves by sending their username and temporary password to the /auth endpoint. In response, they receive a session token and are prompted to complete a password challenge.
+
+**Password Challenge: The user submits their username, session token, and temporary password to the /challenge endpoint. This step verifies the user's identity and allows them to complete the sign-up process.
+
+**Authorization: Once the user has successfully completed the password challenge, they are granted access to the protected resources. They can now use their session tokens to make requests to authorized-only endpoints, such as the /gpt endpoint.
+
+With this workflow, new users are guided through a secure sign-up process that requires them to authenticate themselves and complete a password challenge before they can access protected resources.
+
 ## Methods
 
 Signup and Auth methods use boto3 to interact with the Cognito UserPool
@@ -98,8 +110,7 @@ def challenge(username, temporary_password, new_password):
 
 ### GPT
 
-This method showcases how to secure an endpoint using JWT cookies provided by cognito in conjunction with authorizers.
-First obtain a JWT token 
+This endpoint demonstrates how to secure an API endpoint using JSON Web Tokens (JWT) provided by AWS Cognito, combined with API Gateway Authorizer. 
 
 Example Usage:
 ```
