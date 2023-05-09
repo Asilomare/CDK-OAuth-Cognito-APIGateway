@@ -16,8 +16,6 @@ With this workflow, new users are guided through a secure sign-up process that r
 
 ## Methods
 
-Signup and Auth methods use boto3 to interact with the Cognito UserPool
-
 ### Signup
 
 This endpoint, accessible at awesome-domain.com/auth, is designed to initiate the creation of a new user.
