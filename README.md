@@ -2,6 +2,8 @@
 
 This application seamlessly integrates AWS services such as API Gateway, Cognito, Boto3, and Lambda to establish a robust and efficient API. The API facilitates seamless provisioning and interaction with a Cognito backend. By leveraging these powerful AWS services, the application ensures a scalable, secure, and high-performance solution for user authentication and management.
 
+![](https://github.com/Asilomare/CDK-Cognito-APIGateway/blob/main/images/apidiagram.png?raw=true)
+
 ## New User workflow
 
 **Sign Up:** The user provides their username, email, and temporary password, which are sent to the /signup endpoint. A new user account is created with the provided information.
